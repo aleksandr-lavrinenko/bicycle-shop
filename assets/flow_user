@@ -1,0 +1,27 @@
+@startuml
+User -> BicycleShop: Request main page
+BicycleShop -> DatabaseOrCache: Fetch list of in-stock products
+BicycleShop -> User: Return available categories and customization options
+User -> BicycleShop: Select a part of bicycle (e.g., frame, wheel)
+BicycleShop -> DatabaseOrCache: Validate stock and prohibited combinations
+BicycleShop -> User: Return valid customization options
+User -> BicycleShop: Add customized bicycle to cart
+BicycleShop -> DatabaseOrCache: Save cart to the database
+User -> BicycleShop: Proceed to checkout
+alt User is new
+    User -> BicycleShop: Register during checkout
+    BicycleShop -> DatabaseOrCache: Save new user details
+end
+User -> BicycleShop: Fill order details (e.g., address, contact info)
+BicycleShop -> DatabaseOrCache: Save order information
+User -> BicycleShop: Initiate payment
+BicycleShop -> PaymentProvider: Generate payment link
+BicycleShop -> User: Lead user to payment
+User -> PaymentProvider: Complete payment
+PaymentProvider -> BicycleShop: Notify payment completion
+BicycleShop -> User: Confirm order and estimated delivery time
+BicycleShop -> DeliveryProvider: Request delivery
+DeliveryProvider -> BicycleShop: Notify shipment
+BicycleShop -> User: Notify user of shipment
+DeliveryProvider -> User: Deliver product
+@enduml

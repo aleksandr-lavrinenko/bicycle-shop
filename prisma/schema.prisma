@@ -1,0 +1,243 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator erd {
+  provider       = "prisma-erd-generator"
+  output         = "./erd"
+  theme          = "simple"
+  mermaidCliPath = "./node_modules/.bin/mmdc"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Highlevel product e.g. Bicycle 
+model Product {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  description String?
+  pictures    String[]
+
+  isActive  Boolean @default(false) @db.Boolean
+  isDeleted Boolean @default(false) @db.Boolean
+
+  parts        Part[]
+  CartProduct  CartProduct[]
+  OrderProduct OrderProduct[]
+  PricingRule  PricingRule[]
+
+  @@index([isDeleted])
+  @@index([name])
+}
+
+// Part of a product: e.g. wheel for a bicycle
+model Part {
+  id        String @id @default(uuid()) @db.Uuid
+  category  String @db.VarChar(255)
+  productId String @db.Uuid
+
+  isActive  Boolean @default(false) @db.Boolean
+  isDeleted Boolean @default(false) @db.Boolean
+
+  product                Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  options                PartOption[]
+  prohibitedCombinations ProhibitedCombination[] @relation("ProhibitedPart")
+
+  @@index([productId])
+  @@index([isDeleted])
+}
+
+// Specific part of a product: e.g. Diamond Frame for bicycle
+model PartOption {
+  id          String   @id @default(uuid()) @db.Uuid
+  partId      String   @db.Uuid
+  name        String   @db.VarChar(255)
+  description String?
+  pictures    String[]
+  stock       Int      @db.Integer
+  price       Decimal  @db.Decimal
+
+  isActive  Boolean @default(false) @db.Boolean
+  isDeleted Boolean @default(false) @db.Boolean
+
+  part        Part          @relation(fields: [partId], references: [id], onDelete: Cascade)
+  PricingRule PricingRule[]
+  CartItem    CartItem[]
+  OrderItem   OrderItem[]
+  // Stock       Stock[]
+
+  @@index([partId])
+  @@index([isDeleted])
+}
+
+// model Stock {
+//   id           String   @id @default(uuid()) @db.Uuid
+//   partOptionId String   @db.Uuid
+//   quantity     Int      @db.Integer
+//   updatedAt    DateTime @default(now()) @updatedAt
+
+//   partOption PartOption @relation(fields: [partOptionId], references: [id], onDelete: Cascade)
+
+//   @@index([partOptionId])
+// }
+
+model ProhibitedCombination {
+  id                   String @id @default(uuid()) @db.Uuid
+  partId               String @db.Uuid
+  restrictedPartId     String @db.Uuid
+  optionName           String @db.VarChar(255)
+  restrictedOptionName String @db.VarChar(255)
+
+  isDeleted Boolean @default(false) @db.Boolean
+
+  part Part @relation(fields: [partId], references: [id], onDelete: Cascade, name: "ProhibitedPart")
+
+  @@index([partId, restrictedPartId])
+  @@index([isDeleted])
+}
+
+// Custom rules based of characteristics
+model PricingRule {
+  id              String  @id @default(uuid()) @db.Uuid
+  productId       String  @db.Uuid
+  condition       Json // {"partOptionId: ""}
+  priceAdjustment Decimal @db.Decimal
+  partOptionId    String  @db.Uuid
+
+  isDeleted Boolean @default(false) @db.Boolean
+
+  partOption PartOption @relation(fields: [partOptionId], references: [id])
+  Product    Product    @relation(fields: [productId], references: [id])
+
+  @@index([partOptionId])
+  @@index([isDeleted])
+}
+
+// Stores items added into the bucket 
+model Cart {
+  id         String   @id @default(uuid()) @db.Uuid
+  customerId String? // For authenticated users
+  sessionId  String? // For anonymous users (stored in browser)
+  createdAt  DateTime @default(now())
+
+  CartProduct CartProduct[]
+
+  @@index([customerId])
+  @@index([sessionId])
+}
+
+model CartProduct {
+  id        String   @id @default(uuid()) @db.Uuid
+  productId String   @db.Uuid
+  cartId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  // calculatedPrice Decimal  @db.Decimal // Cached total price for the product (including options)
+
+  isDeleted Boolean @default(false) @db.Boolean
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  @@index([cartId])
+  @@index([productId])
+  @@index([isDeleted])
+}
+
+// Represents the item that user added to the bucket
+model CartItem {
+  id            String @id @default(uuid()) @db.Uuid
+  cartProductId String @db.Uuid
+  partOptionId  String @db.Uuid
+
+  isDeleted Boolean @default(false) @db.Boolean
+
+  cartProduct CartProduct @relation(fields: [cartProductId], references: [id], onDelete: Cascade)
+  partOption  PartOption  @relation(fields: [partOptionId], references: [id], onDelete: Cascade)
+
+  @@index([cartProductId])
+  @@index([isDeleted])
+}
+
+// Represents an order made by a customer
+model Order {
+  id          String      @id @default(uuid()) @db.Uuid
+  customerId  String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @default(now())
+  orderStatus OrderStatus @default(PENDING)
+
+  Customer      User           @relation(fields: [customerId], references: [id])
+  orderProducts OrderProduct[]
+
+  @@index([customerId])
+  @@index([orderStatus])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  IN_DELIVERY
+  CANCELED
+}
+
+model OrderProduct {
+  id              String   @id @default(uuid()) @db.Uuid
+  orderId         String   @db.Uuid
+  productId       String   @db.Uuid
+  calculatedPrice Decimal // Total price the ordered product
+  createdAt       DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  items OrderItem[]
+
+  @@index([productId])
+  @@index([orderId])
+}
+
+model OrderItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  orderProductId String  @db.Uuid
+  partOptionId   String  @db.Uuid
+  price          Decimal @db.Decimal
+
+  orderProduct OrderProduct @relation(fields: [orderProductId], references: [id], onDelete: Cascade)
+  partOption   PartOption   @relation(fields: [partOptionId], references: [id], onDelete: Cascade)
+
+  @@index([orderProductId])
+  @@index([partOptionId])
+}
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255) // Hashed password for authentication
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  cartId    String   @db.Uuid
+  isDeleted Boolean  @default(false) @db.Boolean
+
+  role   Role    @default(CUSTOMER)
+  orders Order[]
+
+  @@index([email])
+  @@index([isDeleted])
+}
+
+enum Role {
+  ADMIN // Full access to all data and configurations
+  CUSTOMER // Access limited to personal data, orders, and cart
+}

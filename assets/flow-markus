@@ -1,0 +1,24 @@
+@startuml
+alt Product is new
+    User -> BicycleShop: Create a Product
+    BicycleShop -> DatabaseOrCache: Save new product details (name, description, etc.)
+end
+
+User -> BicycleShop: Add new Part categories (e.g., Frame, Wheels)
+BicycleShop -> DatabaseOrCache: Save new part categories linked to the product
+
+loop For each part category
+    User -> BicycleShop: Add PartOptions to the part category (e.g., "Mountain Wheels", "Road Wheels")
+    BicycleShop -> DatabaseOrCache: Save new PartOptions with pricing, pictures, and stock
+end
+
+User -> BicycleShop: Set pricing rules for product customization
+BicycleShop -> DatabaseOrCache: Save pricing rules for the product
+
+User -> BicycleShop: Activate product and make it visible for customers
+BicycleShop -> DatabaseOrCache: Mark product as isActive
+
+Customer -> BicycleShop: Request list of available products
+BicycleShop -> DatabaseOrCache: Fetch products marked as isActive
+BicycleShop -> Customer: Return the product list, including the new product
+@enduml

@@ -1,0 +1,144 @@
+erDiagram
+
+        OrderStatus {
+            PENDING PENDING
+PAID PAID
+IN_DELIVERY IN_DELIVERY
+CANCELED CANCELED
+        }
+    
+
+
+        Role {
+            ADMIN ADMIN
+CUSTOMER CUSTOMER
+        }
+    
+  "Product" {
+    String id "🗝️"
+    String name 
+    String description "❓"
+    String pictures 
+    Boolean isDeleted 
+    }
+  
+
+  "Part" {
+    String id "🗝️"
+    String category 
+    Boolean isDeleted 
+    }
+  
+
+  "PartOption" {
+    String id "🗝️"
+    String name 
+    String description "❓"
+    String pictures 
+    Int stock 
+    Decimal price 
+    Boolean isDeleted 
+    }
+  
+
+  "ProhibitedCombination" {
+    String id "🗝️"
+    String restrictedPartId 
+    String optionName 
+    String restrictedOptionName 
+    Boolean isDeleted 
+    }
+  
+
+  "PricingRule" {
+    String id "🗝️"
+    Json condition 
+    Decimal priceAdjustment 
+    Boolean isDeleted 
+    }
+  
+
+  "Cart" {
+    String id "🗝️"
+    String customerId "❓"
+    String sessionId "❓"
+    DateTime createdAt 
+    }
+  
+
+  "CartProduct" {
+    String id "🗝️"
+    DateTime createdAt 
+    Boolean isDeleted 
+    }
+  
+
+  "CartItem" {
+    String id "🗝️"
+    Boolean isDeleted 
+    }
+  
+
+  "Order" {
+    String id "🗝️"
+    DateTime createdAt 
+    DateTime updatedAt 
+    OrderStatus orderStatus 
+    }
+  
+
+  "OrderProduct" {
+    String id "🗝️"
+    Decimal calculatedPrice 
+    DateTime createdAt 
+    }
+  
+
+  "OrderItem" {
+    String id "🗝️"
+    Decimal price 
+    }
+  
+
+  "User" {
+    String id "🗝️"
+    String name 
+    String email 
+    String password 
+    DateTime createdAt 
+    DateTime updatedAt 
+    String cartId 
+    Boolean isDeleted 
+    Role role 
+    }
+  
+    "Product" o{--}o "Part" : "parts"
+    "Product" o{--}o "CartProduct" : "CartProduct"
+    "Product" o{--}o "OrderProduct" : "OrderProduct"
+    "Product" o{--}o "PricingRule" : "PricingRule"
+    "Part" o|--|| "Product" : "product"
+    "Part" o{--}o "PartOption" : "options"
+    "Part" o{--}o "ProhibitedCombination" : "prohibitedCombinations"
+    "PartOption" o|--|| "Part" : "part"
+    "PartOption" o{--}o "PricingRule" : "PricingRule"
+    "PartOption" o{--}o "CartItem" : "CartItem"
+    "PartOption" o{--}o "OrderItem" : "OrderItem"
+    "ProhibitedCombination" o|--|| "Part" : "part"
+    "PricingRule" o|--|| "PartOption" : "partOption"
+    "PricingRule" o|--|| "Product" : "Product"
+    "Cart" o{--}o "CartProduct" : "CartProduct"
+    "CartProduct" o|--|| "Cart" : "cart"
+    "CartProduct" o|--|| "Product" : "product"
+    "CartProduct" o{--}o "CartItem" : "items"
+    "CartItem" o|--|| "CartProduct" : "cartProduct"
+    "CartItem" o|--|| "PartOption" : "partOption"
+    "Order" o|--|| "OrderStatus" : "enum:orderStatus"
+    "Order" o|--|| "User" : "Customer"
+    "Order" o{--}o "OrderProduct" : "orderProducts"
+    "OrderProduct" o|--|| "Order" : "order"
+    "OrderProduct" o|--|| "Product" : "product"
+    "OrderProduct" o{--}o "OrderItem" : "items"
+    "OrderItem" o|--|| "OrderProduct" : "orderProduct"
+    "OrderItem" o|--|| "PartOption" : "partOption"
+    "User" o|--|| "Role" : "enum:role"
+    "User" o{--}o "Order" : "orders"
