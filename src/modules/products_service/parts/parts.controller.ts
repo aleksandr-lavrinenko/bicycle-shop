@@ -44,6 +44,20 @@ export class PartsController {
     });
   }
 
+  // Return all possible customizable elements for the selected product
+  @Get(":id/parts/search")
+  async searchParts(
+    @Param("id") productId: string,
+    @Query("query") query: string,
+    @Query("startId") startId?: string,
+    @Query("limit") limit: number = 10
+  ) {
+    return await this.partsService.searchParts(productId, query, {
+      startId,
+      limit,
+    });
+  }
+
   // Admin managment
 
   @Post(":id/parts")

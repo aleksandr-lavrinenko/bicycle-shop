@@ -7,14 +7,14 @@ C4 Model Diagrams
 <details>
 <summary>System Context Diagram</summary>
 
-![System Context Diagram](assets/system-context-diagram.png)
+![System Context Diagram](assets/context-diagram.jpg)
 
 </details> 
 
 <details> 
 <summary>Container Diagram</summary>
 
-![Container Diagram](assets/container-diagram.pdf)
+![Container Diagram](assets/container-diagrams.jpg)
 
 </details>
 
@@ -36,7 +36,7 @@ The Flow for a client of the shop
 
 </details>
 
-Architecture Design: Monolith
+## Architecture Design: Monolith
 
 This project uses a Monolith Architecture design.     
 - [Why this desion was made](./architecture-decision.md) 
@@ -50,4 +50,4 @@ This project uses a Monolith Architecture design.
 - AWS ALB for balancing load between instances
 - AWS EC2 for hosting 
 - AWS S3 for hosting objects
-- AWS CloudWatch for loging and monitoring
+- AWS CloudWatch and Sentry for loging and monitoring (in progress)
