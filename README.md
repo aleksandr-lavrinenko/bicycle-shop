@@ -1,4 +1,4 @@
-## Project Name
+## Bicycle Shop
 
 Welcome to the Bicycle sho repository! This document provides an overview of the system's architecture, design, and database, along with relevant diagrams for better understanding.
 C4 Model Diagrams
@@ -40,3 +40,14 @@ Architecture Design: Monolith
 
 This project uses a Monolith Architecture design.     
 - [Why this desion was made](./architecture-decision.md) 
+
+## Used tools:
+- Node.js + Nest.js as main frameworks
+- Redis for cache
+- Postgress for database
+- Swagger for API documentations (in progress)
+- AWS API Gateway for handling requests 
+- AWS ALB for balancing load between instances
+- AWS EC2 for hosting 
+- AWS S3 for hosting objects
+- AWS CloudWatch for loging and monitoring
