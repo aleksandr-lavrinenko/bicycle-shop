@@ -1,7 +1,43 @@
 ## Bicycle Shop
 
 Welcome to the Bicycle sho repository! This document provides an overview of the system's architecture, design, and database, along with relevant diagrams for better understanding.
-C4 Model Diagrams
+
+<details>
+<summary>Functional Requirements</summary>
+
+### From Customer Perspective:
+- User can customize bicycles with options for parts (frame type, finish, wheels, etc.).
+- User can see dynamic pricing based on selected parts and conditional rules.
+- User can add customized bicycles to the cart, manage and modify cart items.
+- User can complete purchases and view order history.
+- User can register an account and log in for a personalized experience.
+
+### From Admin (Marcus) Perspective:
+- Marcus can create new product categories and products.
+- Marcus can define and update part options and mark them as "out of stock."
+- Marcus can manage pricing rules, including conditional pricing based on configurations.
+- Marcus can define prohibited combinations of parts, this combination user won't be able to select
+- Marcus can handle customer orders, including cancellations and refunds.
+
+### Additionally:
+- Support for future categories like scateboards
+- Payment providers integration
+- Delivery providers  integration
+</details> 
+
+<details>
+<summary>Non-Functional Requirements</summary>
+
+- Availability: Ensure 99.9% uptime
+- Flexibility: 
+- GDPR Compliance
+- Security: prevent DDos attacks
+- Perfromance: return available parts and configuration no longer than 1 seconds
+- Scalibility: Be able to scale the product with increase customer base and new markets
+</details> 
+
+
+### C4 Model Diagrams
 
 2 main diagrams from C4 Model:
 <details>
